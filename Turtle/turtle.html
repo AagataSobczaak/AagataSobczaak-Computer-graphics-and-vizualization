@@ -1,0 +1,47 @@
+<!DOCTYPE HTML>
+<html>
+
+   <head>
+      <title>JS Turtle</title>
+      <link type="text/css" rel="stylesheet" href="turtle.css" />
+   </head>
+
+   <body>
+      <div id="wrap">
+         <h1>Mr. Turtle</h1>
+         <div id="rightcolumn">
+            
+            <h4>Commands</h4>
+            <code>
+              forward(distance) <br/>
+              goTo(x,y) <br/>
+              penUp() <br/>
+              penDown() <br/>
+              cleanPlane() <br/>
+              rotate(angle) <br/>
+              changeColor('newColor')<br/>
+              koch(length, dim)<br/>
+              triangle(lenght)<br/>
+              sierpinski(len, dim)<br/>
+              firstGraph(lenght, dim)<br/>
+              secondGraph(pkt1, pkt2)<br/>
+              polygon(lenght, dim)<br/><br/>
+              move(distance)<br/>
+              startGame(countOfRedSquares, redSquareSize)<br/>
+            </code>
+            <h4>Notes</h4>
+            <textarea id="definitions" rows="5">
+            </textarea>
+            <h4>Command</h4>
+            <input type="text" id="command" />
+         </div>
+         <div id="leftcolumn">
+            <canvas id="turtlecanvas" width="700" height="700"></canvas>
+         </div>
+      </div> 
+      <script type="text/javascript" src="turtle.js"></script>
+      <script>
+         startGame(30,10)
+       </script>
+   </body>
+</html>

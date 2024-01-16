@@ -1,0 +1,43 @@
+
+html {
+   margin:0;
+   padding:0;
+   background:#ccfcff;
+
+}
+
+body h1 {
+   text-align:center;
+   background:#ccfcff;
+   font-family: 'Courgette', cursive;
+}
+
+#wrap {
+   width:1100px;
+   margin:0 auto;
+   
+}
+
+#rightcolumn {
+   float:right;
+   width:25%;
+   background:#ccd4ffad;
+   font-family: 'Courgette', cursive;
+}
+
+#leftcolumn {
+   float:left;
+   width:75%;
+   background:#ccd4ffad;
+   font-family: 'Courgette', cursive;
+}
+
+#turtlecanvas {
+   background:#fff;
+   border: 3px solid rgb(0, 0, 0);
+}
+
+#command {
+   width:192px;
+   height:53px; 
+}

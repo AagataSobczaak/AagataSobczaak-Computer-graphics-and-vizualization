@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Title</title>
+		<body>
+			<canvas id="canvas" width="800" height="800">
+
+		
+		<script>
+ 
+ const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+ctx.fillStyle = "green";
+///////////////////////////////////////////////1 sposób/////////////////////////////////////////////
+// draw pixel
+function putpixel( x,  y) {
+    ctx.fillRect( x, y, 1, 1);
+}
+// draw first pixel and three more symmetrical pixels
+function pixel4(x, y, _x, _y) {
+    putpixel(x + _x, y + _y);
+    putpixel(x + _x, y - _y);
+    putpixel(x - _x, y - _y);
+    putpixel(x - _x, y + _y);
+}
+
+function draw_ellipse(x, y, a, b) {
+            var _x = 0; //  x
+            var _y = b; //  y
+            var a_sqr = a * a; // a^2, a - semi-major axis
+            var b_sqr = b * b; // b^2, b - semi-minor axis
+            var delta = 4 * b_sqr * ((_x + 1) * (_x + 1)) + a_sqr * ((2 * _y - 1) * (2 * _y - 1)) - 4 * a_sqr * b_sqr; // funkcja wspolrzednych punktow (x+1, y-1/2)
+            while (a_sqr * (2 * _y - 1) > 2 * b_sqr * (_x + 1)) // the fist part of arc
+            {
+                pixel4(x, y, _x, _y);
+                if (delta < 0) // horizontal
+                {
+                    _x++;
+                    delta += 4 * b_sqr * (2 * _x + 3);
+                }
+                else // diagonal
+                {
+                    _x++;
+                    delta = delta - 8 * a_sqr * (_y - 1) + 4 * b_sqr * (2 * _x + 3);
+                    _y--;
+                }
+            }
+            delta = b_sqr * ((2 * _x + 1) * (2 * _x + 1)) + 4 * a_sqr * ((_y + 1) * (_y + 1)) - 4 * a_sqr * b_sqr; // Point coordinate function (x+1/2, y-1)
+            while (_y + 1 != 0) 
+			//The second part of the arc, if the first cycle condition is not met
+			// means that  a^2(2y - 1) <= 2b^2(x + 1) is fulfilled
+
+            {
+                pixel4(x, y, _x, _y);
+                if (delta < 0) // vertical
+                {
+                    _y--;
+                    delta += 4 * a_sqr * (2 * _y + 3);
+                }
+                else // diagonal
+                {
+                    _y--;
+                    delta = delta - 8 * b_sqr * (_x + 1) + 4 * a_sqr * (2 * _y + 3);
+                    _x++;
+                }
+            }
+}	
+draw_ellipse(300,300, 100,200);
+draw_ellipse(300,300, 200,100);
+
+/////////////////////////////////////////////////// 2 sposób//////////////////////////////////////////
+ctx.beginPath();
+ctx.ellipse(125, 125, 120, 50, 0, 0, 2 * Math.PI);
+ctx.stroke();
+				</script>
+					</canvas>
+		</body>
+	</head>
+</html>

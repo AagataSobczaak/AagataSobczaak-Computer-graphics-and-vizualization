@@ -1,0 +1,225 @@
+<!DOCTYPE HTML>
+<html lang = "pl">
+
+    <head>
+        <meta charset = "utf-8"/>
+        <title>Kółko i krzyżyk</title>
+        <link rel = "stylesheet" href = "index.css" type = "text/css" />
+    </head>
+
+    <body>
+        <h1> Kółko i krzyżyk </h1>
+
+        <canvas id="canvas" width="800px" height="800px" style="background-color: rgb(184, 175, 194);">
+            
+        </canvas>
+        
+        
+        <script>
+            const canvas = document.getElementById('canvas')
+            /**@type {CanvasRenderingContext2D}*/
+            const context = canvas.getContext('2d');
+        
+            const Symbol = {
+                CROSS: 'CROSS',
+                CIRCLE: 'CIRCLE',
+                NONE: 'NONE'
+            };  
+        
+            class GameState {
+                constructor() {
+                    this.board = this.getInitialGameState()
+                    this.turn = Symbol.CROSS
+                }
+        
+                getInitialGameState() {
+                    return [
+                        [Symbol.NONE, Symbol.NONE, Symbol.NONE],
+                        [Symbol.NONE, Symbol.NONE, Symbol.NONE],
+                        [Symbol.NONE, Symbol.NONE, Symbol.NONE]
+                    ]
+                }
+        
+                resetState() {
+                    this.board = this.getInitialGameState();
+                    this.turn = Symbol.CROSS
+                }
+        
+                flipTurns() {
+                    if (this.turn === Symbol.CROSS) {
+                        this.turn = Symbol.CIRCLE
+                    } else {
+                        this.turn = Symbol.CROSS
+                    }
+                }
+        
+                getCurrentSymbol() {
+                    return this.turn
+                }
+        
+                checkWiningConditions(symbol) {
+                    //Check rows
+                    for (let y = 0; y < 3; y++) {
+                        let rowMatches = 0
+                        for (let x = 0; x < 3; x++) {
+                            if (this.board[y][x] === symbol) {
+                                rowMatches++
+                            }
+                        }
+                        if (rowMatches == 3) {
+                            return true
+                        }
+                    }
+        
+                    //Checking columns
+                    for (let x = 0; x < 3; x++) {
+                        let columnMatches = 0
+                        for (let y = 0; y < 3; y++) {
+                            if (this.board[y][x] === symbol) {
+                                columnMatches++
+                            }
+                        }
+                        if (columnMatches == 3) {
+                            return true
+                        }
+                    }
+        
+                    //Checking crosses
+                    if (this.board[0][0] === symbol && this.board[1][1] === symbol && this.board[2][2] === symbol) {
+                        return true
+                    }
+        
+                    if (this.board[2][0] === symbol && this.board[1][1] === symbol && this.board[0][2] === symbol) {
+                        return true
+                    }
+        
+                    return false
+                }
+            }
+        
+            const gameState = new GameState()
+            function drawWinScreen_Circle(){
+            context.fillStyle = "black";
+                context.font = '100px serif';
+                context.fillText('Kółko wygrało!', 105, 400);
+            }
+
+
+            function drawWinScreen_Cross() {
+                context.fillStyle = "black";
+                context.font = '100px serif';
+                context.fillText('Krzyżyk wygrał!', 105, 400);
+            }
+
+        
+            function drawLine(fromX, fromY, toX, toY) {
+                context.beginPath();
+                context.moveTo(fromX, fromY);
+                context.lineTo(toX, toY);
+                context.stroke(); 
+            }
+        
+            function drawCircle(x, y, r) {
+                context.beginPath();
+                context.arc(x, y, r, 0, 2 * Math.PI);
+                context.stroke(); 
+            }
+            
+            /**
+             * @param width {number} 
+             * @param width {height} 
+             */
+            function drawBoard() {
+                for (let i = 0; i < 2; i++) {
+                    const x = (canvas.width / 3) * (i + 1)
+                    drawLine(x, 0, x, canvas.height)
+                }
+        
+                for (let i = 0; i < 2; i++) {
+                    const y = (canvas.height / 3) * (i + 1)
+                    drawLine(0, y, canvas.width, y)
+                }
+            }
+        
+            function drawGameBoardState(board) {
+                for (let y = 0; y < 3; y++) {
+                    for (let x = 0; x < 3; x++) {
+                        const symbol = board[y][x]
+                        if (symbol === Symbol.CROSS) {
+                            const crossXOffset = (canvas.width / 50)
+                            const crossYOffset = (canvas.height / 50)
+                            const lineX = (canvas.width / 3) * x + crossXOffset
+                            const lineY = (canvas.height / 3) * y + crossYOffset
+                            const endLineX = (canvas.width / 3) * (x + 1) - crossXOffset
+                            const endLineY = (canvas.height / 3) * (y + 1) - crossYOffset
+                            drawLine(lineX, lineY, endLineX, endLineY)
+                            drawLine(lineX, endLineY, endLineX, lineY)
+                        }
+        
+                        if (symbol === Symbol.CIRCLE) {
+                            const canvasThird = (canvas.width / 3)
+                            const circleX = canvasThird * x + (canvasThird / 2)
+                            const circleY = canvasThird * y + (canvasThird / 2)
+                            drawCircle(circleX, circleY, canvasThird / 2.5)
+                        }
+                    }
+                }
+            }
+        
+        
+            canvas.addEventListener('mousedown', function(event) {
+                if (gameState.checkWiningConditions(Symbol.CROSS) || gameState.checkWiningConditions(Symbol.CIRCLE)) { 
+                    return;
+                }
+        
+                const rect = canvas.getBoundingClientRect()
+                const clickX = event.clientX - rect.left
+                const clickY = event.clientY - rect.top
+        
+                const canvasThird = (canvas.width / 3)
+        
+                const boardX = (()=> {
+                    for (let i = 0; i < 3; i++) {
+                        if (clickX >= i * canvasThird && clickX <= canvasThird * (i + 1)) {
+                            return i;
+                        }
+                    }   
+                })();
+                const boardY = (()=> {
+                    for (let i = 0; i < 3; i++) {
+                        if (clickY >= i * canvasThird && clickY <= canvasThird * (i + 1)) {
+                            return i;
+                        }
+                    }   
+                })();
+        
+                gameState.board[boardY][boardX] = gameState.getCurrentSymbol()
+                gameState.flipTurns();
+                drawGameBoardState(gameState.board);
+        
+                if (gameState.checkWiningConditions(Symbol.CROSS)) {
+                    console.log("CROSS WINS")
+                    // Do shit with it
+                    // context.clearRect(0, 0, canvas.width, canvas.height)
+                    // gameState.resetState()
+                    // drawBoard()
+                    // drawGameBoardState(gameState.board);
+                    drawWinScreen_Cross()
+                }
+        
+                if (gameState.checkWiningConditions(Symbol.CIRCLE)) {
+                    console.log("CIRCLE WINS")
+                    drawWinScreen_Circle()
+                    // context.clearRect(0, 0, canvas.width, canvas.height)
+                    // gameState.resetState()
+                    // drawBoard()
+                    // drawGameBoardState(gameState.board);
+                }
+            })
+        
+            drawBoard()
+            
+        </script>
+            
+        </body>
+        </html>

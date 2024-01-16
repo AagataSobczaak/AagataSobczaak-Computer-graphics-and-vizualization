@@ -1,0 +1,300 @@
+<!DOCTYPE HTML>
+<html lang="pl">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Memory</title>
+    <link rel="stylesheet" href="memo.css" type="text/css" />
+</head>
+
+<body>
+    <h1> Memory </h1>
+    <style>
+        .footer {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            background-color: #ccfcff;
+            color: rgb(0, 0, 0);
+            text-align: center;
+        }
+    </style>
+
+    <div class="footer">
+        <p>Zasady: Ułóż wszystkie pary kart!</p>
+    </div>
+    <div id="end">KONIEC GRY</div>
+    <div id="square">
+
+    </div>
+    
+
+
+    <script>
+
+        class GameTile {
+            constructor(symbol, hidden) {
+                this.symbol = symbol;
+                this.hidden = hidden;
+            }
+        }
+
+        class GameState {
+
+            
+            constructor() {
+                this.width = 5;
+                this.height = 4;
+
+                this.board = []
+                for (let j = 0; j < this.height; j++) {
+                    this.board.push(new Array(this.width))
+                }
+
+                let indicies = new Array((this.width * this.height) / 2).fill().map((element, index) => index)
+                indicies = indicies.concat(indicies)
+
+
+                for (let i = 0; i < this.width; i++) {
+                    for (let j = 0; j < this.height; j++) {
+                        let randomIndex = Math.round(Math.random() * (indicies.length - 1))
+                        this.board[j][i] = new GameTile(indicies[randomIndex], true);
+                        indicies.splice(randomIndex, 1)
+                    }
+                }
+                this.turn = 0;
+                this.playersPoints = [0, 0]
+            }
+
+            getBoardTile(row, column) {
+                return this.board[row][column]
+            }
+
+
+            removeSymbol(symbol) {
+                for (let i = 0; i < this.width; i++) {
+                    for (let j = 0; j < this.height; j++) {
+                        let tile = this.board[j][i]
+                        if (tile !== undefined && symbol === tile.symbol) {
+                            this.board[j][i] = undefined;
+                        }
+                    }
+                }
+            }
+
+
+            elementChosen(row, column) {
+                if (this.board[row][column] !== undefined) {
+                    this.board[row][column].hidden = false;
+                }
+            }
+
+            addPoint() {
+                this.playersPoints[this.turn]++;
+                console.log("POINTS: ", this.playersPoints)
+            }
+
+            areThereAnyTilesLeft() {
+                for (let i = 0; i < this.width; i++) {
+                    for (let j = 0; j < this.height; j++) {
+                        let tile = this.board[j][i]
+                        if (tile !== undefined) {
+                            return true
+                        }
+                    }
+                }
+                return false
+            }
+
+            getWinningPlayer() {
+                if (this.playersPoints[0] > this.playersPoints[1]) {
+                    return 0
+                }
+                if (this.playersPoints[1] > this.playersPoints[0]) {
+                    return 1
+                }
+                return undefined
+            }
+
+            changeTurn() {
+                if (this.turn == 0) {
+                    this.turn = 1
+                } else {
+                    this.turn = 0
+                }
+                console.log("TURN: ", this.turn)
+            }
+
+            getSymbolIfPairUncovered() {
+                let elementsUncovered = []; 
+                for (let i = 0; i < this.width; i++) {
+                    for (let j = 0; j < this.height; j++) {
+                        let tile = this.board[j][i]
+                        if (tile !== undefined && tile.hidden === false) {
+                            elementsUncovered.push(tile);
+                        }
+                    }
+                }
+                if (elementsUncovered.length == 2 && elementsUncovered[0].symbol == elementsUncovered[1].symbol) {
+                    return elementsUncovered[0].symbol
+                }
+                return undefined;
+            }
+
+            areTwoTilesUncovered() {
+                let elementsUncovered = 0; 
+                for (let i = 0; i < this.width; i++) {
+                    for (let j = 0; j < this.height; j++) {
+                        let tile = this.board[j][i]
+                        if (tile !== undefined && tile.hidden === false) {
+                            elementsUncovered++;
+                        }
+                    }
+                }
+                return elementsUncovered == 2;
+            }
+
+            hideAll() {
+                let elementsUncovered = []; 
+                for (let i = 0; i < this.width; i++) {
+                    for (let j = 0; j < this.height; j++) {
+                        let tile = this.board[j][i]
+                        if (tile !== undefined) {
+                            tile.hidden = true
+                        }
+                    }
+                }
+            }
+
+
+        }
+
+        const IMAGES = [
+            "element1.png",
+            "element2.png",
+            "element3.png",
+            "element4.png",
+            "element5.png",
+            "element6.png",
+            "element7.png",
+            "element8.png",
+            "element9.png",
+            "element10.png",
+        ]
+
+
+        const state = new GameState()
+
+
+        const gameBoardElement = document.getElementById('square')
+
+        function initGameBoard() {
+            let html = ""
+            if (state.areThereAnyTilesLeft()) {
+                html += `<p>Tura: Gracz ${state.turn + 1} <br /> Punkty: Gracz 1: ${state.playersPoints[0]}, Gracz 2: ${state.playersPoints[1]}</p>`
+            } else {
+                let winningPlayer = state.getWinningPlayer();
+                if (winningPlayer !== undefined) {
+                    html += `<p>Gracz ${winningPlayer + 1} wygrał</p>`
+                } else {
+                    html += `<p>Remis</p>`
+                }
+            }
+            
+            html += "<table><tbody>"
+            for (let row = 0; row < state.height; row++) {
+                html += '<tr>'
+                for (let column = 0; column < state.width; column++) {
+                    html += '<td>'
+                    html += '</td>'
+                }
+                html += '</tr>'
+            }
+            html += "</tbody></table>"
+
+            gameBoardElement.innerHTML = html;
+        }
+
+
+        function renderGameBoard() {
+            initGameBoard()
+            let table = gameBoardElement.getElementsByTagName('table')[0]
+            for (let row = 0; row < state.height; row++) {
+                for (let column = 0; column < state.width; column++) {
+                    let tile = state.getBoardTile(row, column)
+                    let imageCell = table.rows[row].cells[column]
+                    if (tile !== undefined) {
+                        imageCell.innerHTML = `<img src="${IMAGES[tile.symbol]}" style="max-width:100%;  ${tile.hidden ? "filter: brightness(0) invert(1);" : ""}" />`
+                    } else {
+                        imageCell.innerHTML = `<img src="${IMAGES[0]}" style="max-width:100%; opacity: 0;" />`
+                    }
+                }
+            }
+
+            table.onclick = function(e) {
+                if (state.areThereAnyTilesLeft() == false) {
+                    return;
+                }
+                let tableCell = e.target.parentElement
+                let tableRow = tableCell.parentElement
+                let column = tableCell.cellIndex
+                let row = tableRow.rowIndex
+
+                state.elementChosen(row, column)
+
+                initGameBoard();
+                renderGameBoard();
+
+                if (state.areTwoTilesUncovered()) {
+                    let pairedSymbol = state.getSymbolIfPairUncovered()
+                    if (pairedSymbol !== undefined) {
+                        state.removeSymbol(pairedSymbol)
+                        state.addPoint()
+                        state.changeTurn()
+
+                        if (state.areThereAnyTilesLeft() == false) {
+                            let winningPlayer = state.getWinningPlayer()
+                            if (winningPlayer !== undefined) {
+                                console.log("PLAYER: ", winningPlayer, " WON")
+                            } else {
+                                console.log("DRAW")
+                            }
+                        }
+
+                        initGameBoard();
+                        renderGameBoard();
+                    } 
+                    else {
+                        setTimeout(function() {
+                            state.hideAll()
+                            state.changeTurn()
+                            initGameBoard();
+                            renderGameBoard();
+                        }, 200)
+                    }
+                }
+
+                
+            }
+        }
+
+        initGameBoard();
+        renderGameBoard();
+        
+
+
+        
+
+
+        
+
+
+
+
+
+    </script>
+
+</body>
+
+</html>
